@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
  * @author Eduardo Moya (edmobe)
  */
 public class Backtracking {
+
     private int[][] labyrinth;
     private int[][] solution;
     private int[][] displayMatrix;
@@ -19,17 +20,13 @@ public class Backtracking {
     private int iterationSpeed;
 
 
+    //Getters of the class
+
     public boolean getSolutionExists(){
 
         return solutionExists;
 
     }
-
-    public int[][] getDisplayMatrix(){
-
-        return displayMatrix;
-    }
-
 
     public int getN(){
 
@@ -39,6 +36,11 @@ public class Backtracking {
     public int getObstacles(){
 
         return obstacles;
+    }
+
+    public int[][] getDisplayMatrix(){
+
+        return displayMatrix;
     }
 
     public int[][] getLabyrinth(){
@@ -173,7 +175,7 @@ public class Backtracking {
         }
         displayMatrix = labyrinth;
         System.out.println("======== NEW LABYRINTH ==========");
-        //printFor(displayMatrix, iterationSpeed * 5);
+        printFor(displayMatrix, iterationSpeed * 5);
         return labyrinth;
     }
 
@@ -185,7 +187,7 @@ public class Backtracking {
     public boolean solveLabyrinth(int[][] labyrinth) {
         if (findPath(labyrinth, 0, 0, labyrinth.length, "down")) {
             System.out.println("======== SOLUTION: ==========");
-            //printFor(solution, iterationSpeed * 5);
+            printFor(solution, iterationSpeed * 5);
 
             return true;
         } else {
@@ -209,14 +211,14 @@ public class Backtracking {
         if (x == N - 1 && y == N - 1) { //we have reached
             solution[x][y] = 3;
             updateDisplay();
-            //printFor(displayMatrix, iterationSpeed);
+            printFor(displayMatrix, iterationSpeed);
             return true;
         }
         if (isSafeToGo(x, y) && solution[x][y] != 3) {
             // move to labyrinth[x][y]
             solution[x][y] = 3;
             updateDisplay();
-            //printFor(displayMatrix, iterationSpeed);
+            printFor(displayMatrix, iterationSpeed);
             // now player has four options, either go right OR go down or left or go up
             if (direction != "up" && findPath(labyrinth, x + 1, y, N, "down")) { //go down
                 return true;

@@ -8,8 +8,12 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
-
 import java.util.concurrent.TimeUnit;
+
+/**
+ * Clase que se encarga de crear la vista gráfica de la aplicación
+ * @author Fabricio Elizondo
+ */
 
 public class ApplicationView extends View {
 
@@ -21,6 +25,11 @@ public class ApplicationView extends View {
     Backtracking backtracking = new Backtracking(8, 2, 500); // (size, obstacleIncrease, timePerIteration)
 
 
+    /**
+     * Constructor de la clase que inicializa las variables tipo Paint
+     * @param context
+     * @param attrs
+     */
     public ApplicationView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
@@ -45,7 +54,9 @@ public class ApplicationView extends View {
 
     }
 
-
+    /**
+     * Función que crea una matriz de 8x8 con objetos tipo celdas
+     */
 
     private void createMaze(){
 
@@ -63,6 +74,10 @@ public class ApplicationView extends View {
 
     }
 
+    /**
+     * Función que se encarga de actualizar los flags respectivos para cada objeto de la matriz
+     * @param matrix Matriz que representa la solución luego de aplicar el backtracking
+     */
 
     private void actualizarMaze(int[][] matrix ){
 
@@ -92,6 +107,10 @@ public class ApplicationView extends View {
         }
     }
 
+    /**
+     * Función que reinicia los flags de cada obtejo de la matriz
+     */
+
     private void resetMaze(){
 
         for(int i = 0; i < backtracking.getN(); i++){
@@ -105,6 +124,10 @@ public class ApplicationView extends View {
         }
     }
 
+    /**
+     * Función que dibuja los rectángulos dentro de la matriz, de acuerdo con la solución del backtracking
+     * @param canvas
+     */
     private void drawMaze(Canvas canvas){
         float margin = cellSize/10;
 
@@ -133,6 +156,10 @@ public class ApplicationView extends View {
         }
     }
 
+    /**
+     * Función principal de la vista que se encarga de llamar el bactracking, actualizar los valores y dibujar en la pantalla
+     * @param canvas
+     */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -141,124 +168,63 @@ public class ApplicationView extends View {
         int width = getWidth();
         int height = getHeight();
 
-        if(width/height < COLS/ROWS){
-            cellSize = width/(COLS+1);
+        if (width / height < COLS / ROWS) {
+            cellSize = width / (COLS + 1);
+        } else {
+
+            cellSize = height / (ROWS + 1);
         }
 
-        else{
+        hMargin = (width - COLS * cellSize) / 2;
+        vMargin = (height - ROWS * cellSize) / 2;
 
-            cellSize = height/(ROWS+1);
-        }
+        canvas.translate(hMargin, vMargin);
 
-        hMargin = (width-COLS*cellSize)/2;
-        vMargin = (height-ROWS*cellSize)/2;
+        for (int x = 0; x < COLS; x++) {
 
-        canvas.translate(hMargin,vMargin);
+            for (int y = 0; y < ROWS; y++) {
 
-        for (int x = 0; x < COLS; x++){
-
-            for(int y = 0; y < ROWS; y++){
-
-                if(cells[x][y].topWall){
-                    canvas.drawLine(x*cellSize,y*cellSize,(x+1)*cellSize,y*cellSize,wallPaint);
+                if (cells[x][y].topWall) {
+                    canvas.drawLine(x * cellSize, y * cellSize, (x + 1) * cellSize, y * cellSize, wallPaint);
                 }
 
-                if(cells[x][y].leftWall){
-                    canvas.drawLine(x*cellSize,y*cellSize,x*cellSize,(y+1)*cellSize,wallPaint);
+                if (cells[x][y].leftWall) {
+                    canvas.drawLine(x * cellSize, y * cellSize, x * cellSize, (y + 1) * cellSize, wallPaint);
                 }
 
-                if(cells[x][y].bottomWall){
-                    canvas.drawLine(x*cellSize,(y+1)*cellSize,(x+1)*cellSize,(y+1)*cellSize,wallPaint);
+                if (cells[x][y].bottomWall) {
+                    canvas.drawLine(x * cellSize, (y + 1) * cellSize, (x + 1) * cellSize, (y + 1) * cellSize, wallPaint);
                 }
 
-                if(cells[x][y].rightWall){
-                    canvas.drawLine((x+1)*cellSize,y*cellSize,(x+1)*cellSize,(y+1)*cellSize,wallPaint);
+                if (cells[x][y].rightWall) {
+                    canvas.drawLine((x + 1) * cellSize, y * cellSize, (x + 1) * cellSize, (y + 1) * cellSize, wallPaint);
                 }
             }
         }
 
 
+        if (backtracking.getSolutionExists()) {
 
-        if(backtracking.getSolutionExists()){
-
-            backtracking.createLabyrinth(backtracking.getN(),backtracking.getObstacles() + 2);
+            backtracking.createLabyrinth(backtracking.getN(), backtracking.getObstacles() + 2);
             backtracking.solveLabyrinth(backtracking.getLabyrinth());
             actualizarMaze(backtracking.getDisplayMatrix());
             postInvalidateDelayed(TimeUnit.SECONDS.toMillis(2));
-            Toast toast1 = Toast.makeText(super.getContext(),"Obstacles = " + backtracking.getObstacles(),Toast.LENGTH_SHORT);
-            toast1.setGravity(Gravity.BOTTOM,0,0);
+            Toast toast1 = Toast.makeText(super.getContext(), "Obstacles = " + backtracking.getObstacles(), Toast.LENGTH_SHORT);
+            toast1.setGravity(Gravity.BOTTOM, 0, 0);
             toast1.show();
             drawMaze(canvas);
             backtracking.resetMatrix(backtracking.getSolution());
             resetMaze();
-        }
-
-        else{
+        } else {
             actualizarMaze(backtracking.getDisplayMatrix());
             drawMaze(canvas);
-            Toast toast2 = Toast.makeText(super.getContext(),"PATH NOT FOUND",Toast.LENGTH_LONG);
-            toast2.setGravity(Gravity.BOTTOM,0,0);
+            Toast toast2 = Toast.makeText(super.getContext(), "PATH NOT FOUND", Toast.LENGTH_LONG);
+            toast2.setGravity(Gravity.BOTTOM, 0, 0);
             toast2.show();
         }
 
 
-
-
-
     }
 
-    private class Cell{
 
-        boolean topWall = true;
-        boolean leftWall = true;
-        boolean rightWall = true;
-        boolean bottomWall = true;
-        boolean path;
-        boolean obstacle;
-        boolean visited;
-        boolean noPaint;
-
-        public boolean isNoPaint() {
-            return noPaint;
-        }
-
-        public void setNoPaint(boolean noPaint) {
-            this.noPaint = noPaint;
-        }
-
-        int Col;
-        int Row;
-
-        public Cell(int col, int row) {
-            Col = col;
-            Row = row;
-            path = false;
-            obstacle = false;
-            visited = false;
-        }
-
-        public boolean isPath() {
-            return path;
-        }
-
-        public void setPath(boolean path) {
-            this.path = path;
-        }
-
-        public boolean isObstacle() {
-            return obstacle;
-        }
-
-        public void setObstacle(boolean obstacle) {
-            this.obstacle = obstacle;
-        }
-
-        public boolean isVisited() {
-            return visited;
-        }
-
-        public void setVisited(boolean visited) {
-            this.visited = visited;
-        }
-    }
 }
